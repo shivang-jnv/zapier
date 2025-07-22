@@ -19,22 +19,27 @@ const app = (0, express_1.default)();
 app.use(express_1.default.json());
 //password logic
 app.post("/hooks/catch/:userId/:zapId", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const userId = req.params.userId;
     const zapId = req.params.zapId;
-    const body = req.body;
+    const body = (_a = req.body) !== null && _a !== void 0 ? _a : {};
+    console.log("request body: ", body);
     //store in db a new trigger
     yield client.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
-        const run = yield client.zapRun.create({
+        const run = yield tx.zapRun.create({
             data: {
                 zapId: zapId,
                 metadata: body
             }
         });
-        yield client.zapRunOutbox.create({
+        yield tx.zapRunOutbox.create({
             data: {
                 zapRunId: run.id
             }
         });
     }));
+    res.json({
+        message: "Webhook received"
+    });
 }));
 app.listen(3000);
