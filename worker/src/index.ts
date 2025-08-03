@@ -25,12 +25,13 @@ async function main(){
         value: message.value?.toString(),
       })
 
-      await new Promise(r => setTimeout(r, 1000));
+      await new Promise(r => setTimeout(r, 5000));
+      console.log("processing done");
 
       await consumer.commitOffsets([{
         topic: TOPIC_NAME,
         partition: partition,
-        offset: message.offset
+        offset: (parseInt(message.offset) + 1).toString()
       }])
     },
   })
