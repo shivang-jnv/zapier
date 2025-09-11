@@ -1,10 +1,105 @@
-import { Appbar } from "@/components/Appbar";
+"use client";
 
-export default function(){
-  return <div>
-    <Appbar />
+import { Appbar } from "@/components/Appbar";
+import DarkButton from "@/components/buttons/DarkButton";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { BACKEND_URL, HOOKS_URL } from "../config";
+import { table } from "console";
+import { LinkButton } from "@/components/buttons/LinkButtons";
+import { useRouter } from "next/navigation";
+
+interface Zap {
+  id: string;
+  triggerId: string;
+  userId: number;
+  trigger: {
+    id: string;
+    zapId: string;
+    triggerId: string;
+    type: {
+      id: string;
+      name: string;
+    };
+  };
+  actions: {
+    id: string;
+    zapId: string;
+    actionId: string;
+    sortingOrder: number;
+    type: {
+      id: string;
+      name: string;
+    }[];
+  }[];
+}
+
+function useZaps() {
+  const [loading, setLoading] = useState(true);
+  const [zaps, setZaps] = useState<Zap[]>([]);
+
+  useEffect(() => {
+    axios.get(`${BACKEND_URL}/api/v1/zap`, {
+      headers: {
+        "Authorization": localStorage.getItem("token")
+      }
+    }).then((res) => {
+      setZaps(res.data.zaps);
+      setLoading(false);
+    });
+  }, []);
+
+  return {
+    loading,
+    zaps,
+  };
+}
+
+export default function () {
+  const { loading, zaps } = useZaps();
+  const router = useRouter();
+
+  return (
     <div>
-      
+      <Appbar />
+      <div className="flex justify-center pt-8">
+        <div className="max-w-screen-lg w-full">
+          <div className="flex justify-between px-8">
+            <div className="text-2xl font-semibold">My Zaps</div>
+            <DarkButton onClick={() => {
+              router.push("/zap/create")
+            }}>Create</DarkButton>
+          </div>
+        </div>
+      </div>
+      {loading ? "Loading..." :  <div className="flex justify-center"><ZapTable zaps={zaps} /> </div>}
     </div>
-  </div>
+  );
+}
+
+function ZapTable({ zaps }: { zaps: Zap[] }) {
+  const router = useRouter();
+  return (
+    <div className="p-8 max-w-screen-lg w-full">
+        <div className="flex border-b">
+          <div className="flex-1">Name</div>
+          <div className="flex-1">ID</div>
+          <div className="flex-1">Created At</div>
+          <div className="flex-1">Webhook URL</div>
+          <div className="flex-1">Go</div>
+          <div></div>
+        </div>
+        {zaps.map(z => (
+          <div className="flex border-b py-4">
+            <div className="flex-1">{z.trigger.type.name} {z.actions.map(x => x.type.name + " ")}</div>
+            <div className="flex-1">{z.id}</div>
+            <div className="flex-1">Aug 25, 2025</div>
+            <div className="flex-1">{`${HOOKS_URL}/hooks/catch/1/${z.id}`}</div>
+            <div className="flex-1"><LinkButton onClick={() => {
+              router.push("/zap/" + z.id)
+            }}>Go</LinkButton></div>
+          </div>
+        ))}
+    </div>
+  );
 }
