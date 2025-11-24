@@ -20,6 +20,7 @@ interface Zap {
     type: {
       id: string;
       name: string;
+      image: string;
     };
   };
   actions: {
@@ -91,7 +92,7 @@ function ZapTable({ zaps }: { zaps: Zap[] }) {
         </div>
         {zaps.map(z => (
           <div className="flex border-b py-4">
-            <div className="flex-1">{z.trigger.type.name} {z.actions.map(x => x.type.name + " ")}</div>
+            <div className="flex-1 flex"> <img src={z.trigger.type.image} className="h-[30px] w-[30px]"/> {z.actions.map(x => <img src={ x.type.image} className="h-[30px] w-[30px]" />)}</div>
             <div className="flex-1">{z.id}</div>
             <div className="flex-1">Aug 25, 2025</div>
             <div className="flex-1">{`${HOOKS_URL}/hooks/catch/1/${z.id}`}</div>
