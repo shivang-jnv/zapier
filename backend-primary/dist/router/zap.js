@@ -36,7 +36,8 @@ router.post("/", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, vo
                     actions: {
                         create: actions.map((x, index) => ({
                             actionId: x.availableActionId,
-                            sortingOrder: index
+                            sortingOrder: index,
+                            metadata: x.actionMetadata || {}
                         }))
                     }
                 }
@@ -44,7 +45,7 @@ router.post("/", middleware_1.authMiddleware, (req, res) => __awaiter(void 0, vo
             const trigger = yield tx.trigger.create({
                 data: {
                     triggerId: availableTriggerId, // Now guaranteed to be string
-                    zapId: zap.id
+                    zapId: zap.id,
                 }
             });
             yield tx.zap.update({

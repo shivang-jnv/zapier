@@ -31,6 +31,7 @@ interface Zap {
     type: {
       id: string;
       name: string;
+      image: string;
     }[];
   }[];
 }
